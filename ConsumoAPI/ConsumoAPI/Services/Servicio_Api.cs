@@ -1,6 +1,8 @@
 ﻿using ConsumoAPI.Models;
 using Newtonsoft.Json;
 using System.Runtime.InteropServices;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace ConsumoAPI.Services
 {
@@ -40,6 +42,7 @@ namespace ConsumoAPI.Services
             List<Empleado> empleado = new List<Empleado>();
             await Autneticar();
             var cliente = new HttpClient();
+            cliente.BaseAddress = new Uri(_baseurl);
             cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _token);
             var response = await cliente.GetAsync("api/Producto/Lista");
 
@@ -56,6 +59,7 @@ namespace ConsumoAPI.Services
             Empleado objeto = new Empleado();
             await Autneticar();
             var cliente = new HttpClient();
+            cliente.BaseAddress = new Uri(_baseurl);
             cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _token);
             var response = await cliente.GetAsync("api/Producto/Obtener{id}");
 
@@ -64,21 +68,62 @@ namespace ConsumoAPI.Services
                 var json_respuesta = await response.Content.ReadAsStringAsync();
                 var resultado = JsonConvert.DeserializeObject<ResultadoApi>(json_respuesta);
                 objeto = resultado.objeto;
+
             }
-        public Task<bool> Editar(Empleado objeto)
+            return objeto;
+          }
+        public async Task<bool> Editar(Empleado objeto)
         {
-           
+            bool respuesta = false;
+            await Autneticar();
+            var cliente = new HttpClient();
+            cliente.BaseAddress = new Uri(_baseurl);
+            cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _token);
+            var content = new StringContent(JsonConvert.SerializeObject(objeto), Encoding.UTF8, "application/json");
+            var response = await cliente.PutAsync("api/Producto/Editar/", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                respuesta = true;
+            }
+            return respuesta;
+
         }
 
-        public Task<bool> Eliminar(int id)
+        public async Task<bool> Eliminar(int id)
         {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> Guardar(Empleado objeto)
-        {
+            bool respuesta = false;
+            await Autneticar();
+            var cliente = new HttpClient();
+            cliente.BaseAddress = new Uri(_baseurl);
+            cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _token);
             
+            var response = await cliente.DeleteAsync($"api/Producto/Delete/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                respuesta = true;
+            }
+            return respuesta;
         }
+
+        public async Task<bool> Guardar(Empleado objeto)
+        {
+                bool respuesta = false;
+                await Autneticar();
+                var cliente = new HttpClient();
+                cliente.BaseAddress = new Uri(_baseurl);
+                cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _token);
+                var content = new StringContent(JsonConvert.SerializeObject(objeto), Encoding.UTF8, "application/json");
+                var response = await cliente.PostAsync("api/Producto/Guardar/",content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    respuesta = true;
+                }
+                return respuesta;
+
+            }
 
  
 
