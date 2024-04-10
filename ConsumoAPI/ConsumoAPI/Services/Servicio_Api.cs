@@ -51,9 +51,23 @@ namespace ConsumoAPI.Services
             }
             return empleado;
         }
+        public async Task<Empleado> Obtener(int id)
+        {
+            Empleado objeto = new Empleado();
+            await Autneticar();
+            var cliente = new HttpClient();
+            cliente.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("bearer", _token);
+            var response = await cliente.GetAsync("api/Producto/Obtener{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json_respuesta = await response.Content.ReadAsStringAsync();
+                var resultado = JsonConvert.DeserializeObject<ResultadoApi>(json_respuesta);
+                objeto = resultado.objeto;
+            }
         public Task<bool> Editar(Empleado objeto)
         {
-            throw new NotImplementedException();
+           
         }
 
         public Task<bool> Eliminar(int id)
@@ -63,15 +77,12 @@ namespace ConsumoAPI.Services
 
         public Task<bool> Guardar(Empleado objeto)
         {
-            throw new NotImplementedException();
+            
         }
 
  
 
-        public Task<Empleado> Obtener(int id)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 
 }
